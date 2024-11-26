@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مؤشر نسبة الإدمان</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* styles.css */
+body {
+    font-family: 'Cairo', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+    color: #fff;
+    text-align: center;
+}
+
+.header {
+    padding: 20px 10px;
+    background: rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin: 0;
+    color: #f1c40f;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 1em;
+    border-radius: 5px;
+    border: none;
+}
+
+input {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    outline: none;
+    text-align: center;
+}
+
+button {
+    background: #f1c40f;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #d4ac0d;
+}
+
+#gauge {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    margin: 20px auto;
+}
+
+.visitor-count {
+    font-size: 1.2em;
+    margin: 20px 0;
+}
+
+ul {
+    text-align: left;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+}
+
+ul li {
+    background: rgba(255, 255, 255, 0.2);
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    transition: transform 0.3s;
+}
+
+ul li:hover {
+    transform: scale(1.05);
+    background: #f39c12;
+    color: #333;
+}
+
+footer {
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    font-size: 0.9em;
+}
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚬 حاسب نسبة الإدمان 🚬</h1>
+    </div>
+    <div class="container">
+        <p>أدخل عدد السجائر التي تدخنها يوميًا واحصل على مستوى الإدمان الخاص بك:</p>
+        <div class="input-group">
+            <input type="number" id="cigarettes" placeholder="عدد السجائر" min="0">
+            <button onclick="calculateAddiction()">احسب</button>
+        </div>
+        <div id="result-box">
+            <h2>النتيجة:</h2>
+            <div id="result">-</div>
+        </div>
+        <div class="gauge-container">
+            <canvas id="gauge"></canvas>
+        </div>
+        <p class="visitor-count">👥 عدد الزوار: <span id="visitor-count">1000</span></p>
+        <h2>🛡️ نصائح للحد من التدخين:</h2>
+        <ul id="tips">
+            <!-- النصائح تظهر تلقائياً -->
+        </ul>
+    </div>
+    <footer>
+        <p>صُمم بحب لتشجيعك على حياة صحية ♥</p>
+    </footer>
+    <script>
+        // script.js
+
+let visitorCount = 100;
+
+// تحديث عدد الزوار
+document.getElementById('visitor-count').innerText = visitorCount++;
+
+function calculateAddiction() {
+    const cigarettes = parseInt(document.getElementById('cigarettes').value);
+
+    if (isNaN(cigarettes) || cigarettes < 0) {
+        alert("يرجى إدخال عدد صحيح!");
+        return;
+    }
+
+    let addictionLevel;
+    if (cigarettes === 0) {
+        addictionLevel = "🚀 لا توجد إدمان. أحسنت!";
+    } else if (cigarettes <= 5) {
+        addictionLevel = "✅ إدمان منخفض.";
+    } else if (cigarettes <= 15) {
+        addictionLevel = "⚠️ إدمان متوسط.";
+    } else {
+        addictionLevel = "❌ إدمان عالي! يجب أن تسعى للمساعدة.";
+    }
+
+    document.getElementById('result').innerText = addictionLevel;
+
+    // تحديث المؤشر
+    updateGauge(cigarettes);
+}
+
+const tips = [
+    "🚶 مارس رياضة المشي لتقليل التوتر.",
+    "💧 اشرب الماء عند شعورك بالرغبة في التدخين.",
+    "🛑 حاول تجنب المواقف التي تزيد من رغبتك في التدخين.",
+    "👨‍⚕️ استشر طبيبك عن وسائل الإقلاع.",
+    "🤝 انضم لمجموعة دعم تساعدك في التوقف."
+];
+
+const tipsList = document.getElementById('tips');
+tips.forEach(tip => {
+    const li = document.createElement('li');
+    li.innerText = tip;
+    tipsList.appendChild(li);
+});
+
+// إعداد المؤشر
+function updateGauge(value) {
+    const canvas = document.getElementById('gauge');
+    const ctx = canvas.getContext('2d');
+
+    const maxValue = 20;
+    const percentage = Math.min(value / maxValue, 1);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.beginPath();
+    ctx.arc(150, 150, 100, Math.PI, 2 * Math.PI);
+    ctx.fillStyle = '#e6e6e6';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(150, 150, 100, Math.PI, Math.PI + percentage * Math.PI);
+    ctx.lineTo(150, 150);
+    ctx.fillStyle = percentage > 0.7 ? 'red' : percentage > 0.4 ? 'orange' : 'green';
+    ctx.fill();
+
+    ctx.font = '20px Cairo';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`${Math.round(percentage * 100)}%`, 130, 140);
+}
+
+updateGauge(0);
+
+    </script>
+</body>
+</html>
